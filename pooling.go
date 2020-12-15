@@ -23,8 +23,8 @@ func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 	//fmt.Printf("outsize %v", outsize)
 	for y, _ := range in {
 		for x, _ := range in[y] {
-			if y%e.Stride == 0 && x%e.Stride == 0 {
-				var all = make([]float64, e.Ksize^2)
+			if y%(e.Stride) == 0 && x%(e.Stride) == 0 && x+1 < len(in) && y+1 < len(in[x]) {
+				var all = make([]float64, 0)
 				var q = 1
 				for q := q; q < e.Ksize+1; q++ {
 					var w = 1
@@ -33,7 +33,7 @@ func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 					}
 				}
 				var av = Max(all)
-				out[(y)/e.Stride] = append(out[(y)/e.Stride], av)
+				out[y/e.Stride] = append(out[y/e.Stride], av)
 			}
 		}
 	}

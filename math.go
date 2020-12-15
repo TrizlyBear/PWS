@@ -1,15 +1,12 @@
 package cnn
 
 import (
-	"fmt"
 	"sort"
 )
 
 func Mean(in []float64) float64 {
 	total := 0.0
-	fmt.Printf(("new"))
 	for _, v := range in {
-		fmt.Printf("%v", v)
 		total += v
 	}
 	return total / float64(len(in))
@@ -18,4 +15,12 @@ func Mean(in []float64) float64 {
 func Max(in []float64) float64 {
 	sort.Float64s(in)
 	return in[len(in)-1]
+}
+
+func Sum(in []float64) float64 {
+	sum := .0
+	for _, x := range in {
+		sum += x
+	}
+	return sum
 }
