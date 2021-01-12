@@ -7,8 +7,10 @@ import (
 )
 
 type Conv2D struct {
-	Ksize  int
-	Stride int
+	Ksize      int
+	Stride     int
+	Neurons    int
+	Activation string
 }
 
 func (e Conv2D) Forward(in [][]float64, kfilter []float64) ([][]float64, error) {
