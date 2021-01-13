@@ -1,6 +1,9 @@
 package cnn
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Model struct {
 	Name     string
@@ -58,6 +61,14 @@ func (e Model) Forward(in [][]float64) (output [][]float64, result []float64, er
 				current = out
 			}
 		}
+		if layer, ok := x.(FC); ok {
+			out, err := layer.Forward(current, len(current[0]), 1)
+			if err != nil {
+				return nil, nil, err
+			} else {
+				current = out
+			}
+		}
 	}
 
 	//MaxPooling{e.Config[0].(int), e.Config[1].(int)}.Forward(in)
@@ -82,15 +93,23 @@ func (e Model) Predict(in [][]float64) string {
 	return e.Features[biggesti]
 }
 
-func (e Model) Fit(x_train [][][]float64, y_train []string, x_valid [][][]float64, y_valid []string, epochs int, learning_rate float64) {
+func (e Model) Fit(x_train [][][]float64, y_train []float64, x_valid [][][]float64, y_valid []float64, epochs int, learning_rate float64) {
 	if len(x_train) != len(y_train) || len(x_valid) != len(y_valid) {
 		fmt.Print("! ", "Train or Validation datasets dont have same amount data as predictable features")
 		return
 	}
+	var err float64 = 0
 	for i := 0; i < epochs; i++ {
-		for _, el := range x_train {
-			e.Forward(el)
+		for ie, el := range x_train {
+			//fmt.Println(el)
+			out, _, _ := e.Forward(el)
+			fmt.Println(out)
+			err += math.Pow(y_train[ie]-out[0][0], 2)
 			e.Backward()
+			_ = math.Abs(1.0)
+			_ = ie
+			//flat := Flatten{}
+			//fmt.Println(flat.Forward(el))
 		}
 		for i, el := range x_valid {
 			/*if e.Forward(el).(float64) != y_valid[i] {
@@ -98,6 +117,6 @@ func (e Model) Fit(x_train [][][]float64, y_train []string, x_valid [][][]float6
 			}*/
 			var _, _ = i, el
 		}
-		fmt.Println("Epoch:", i+1, "| Accuracy", "| Test accuracy")
+		fmt.Println("Epoch:", i+1, "| Accuracy", "| Test accuracy", "| Error", err)
 	}
 }
