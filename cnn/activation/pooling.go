@@ -1,7 +1,8 @@
-package cnn
+package activation
 
 import (
 	"errors"
+	"github.com/TrizlyBear/PWS/math"
 )
 
 type MaxPooling struct {
@@ -32,7 +33,7 @@ func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 						all = append(all, in[q+y-1][w+x-1])
 					}
 				}
-				var av = Max(all)
+				var av = math.Max(all)
 				out[y/e.Stride] = append(out[y/e.Stride], av)
 			}
 		}
@@ -58,7 +59,7 @@ func (e AvgPooling) Forward(in [][]float64) ([][]float64, error) {
 						all = append(all, in[q+y-1][w+x-1])
 					}
 				}
-				var av = Mean(all)
+				var av = math.Mean(all)
 				out[(y)/e.Stride] = append(out[(y)/e.Stride], av)
 			}
 		}

@@ -1,27 +1,27 @@
 package main
 
 import (
-	cnn "github.com/TrizlyBear/PWS"
+	"github.com/TrizlyBear/PWS/failed"
+	"github.com/TrizlyBear/PWS/math"
 )
 
 func main() {
-	m := cnn.Model{Name: "Test", Layers: []interface{}{cnn.Flatten{},
-		cnn.FC{}},
-	}
-	data := [][][]float64{}
-	for i := 0; i < 10; i++ {
-		data = append(data, cnn.Rand(5, 5))
-	}
-	ver := []float64{1, 1, 1, 1, 1, 0, 0, 0, 0, 0}
-	m.Fit(data, ver, nil, nil, 1, 0.1)
 
-	/*lay := cnn.FC{
+	m := failed.Model{Name: "Test", Layers: []interface{}{
+		&failed.FC{In: 5, Out: 5}, &failed.FC{In: 5, Out: 5}, &failed.FC{In: 5, Out: 1}}}
+	data := [][][]float64{}
+	for i := 0; i < 1000; i++ {
+		data = append(data, math.Rand(5, 5))
 	}
-	input := cnn.Rand(3,3)
-	flat := cnn.Flatten{}
-	flatinput, _ := flat.Forward(input)
-	fmt.Println(lay.Forward([][]float64{flatinput},9,1))
-	fmt.Println(input)
-	fmt.Println(cnn.Transpose(input))
-	fmt.Println(cnn.Mean())*/
+
+	ver := [][]float64{}
+	for i := 0; i < 1000; i++ {
+		ver = append(ver, math.Rand(1, 1)[0])
+	}
+	m.Fit(data, ver, nil, nil, 1000, 0.1)
+
+	/*a1:= [][]float64{{1.826347234}}
+	a2 := [][]float64{{5,8,9,0}}
+	fmt.Println(cnn.Dot(cnn.Transpose(a1),a2))*/
+
 }

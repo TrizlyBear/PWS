@@ -1,34 +1,12 @@
-package cnn
+package math
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
-	"sort"
 )
 
-func Mean(in []float64) float64 {
-	total := 0.0
-	for _, v := range in {
-		total += v
-	}
-	return total / float64(len(in))
-}
-
-func Max(in []float64) float64 {
-	sort.Float64s(in)
-	return in[len(in)-1]
-}
-
-func Sum(in []float64) float64 {
-	sum := .0
-	for _, x := range in {
-		sum += x
-	}
-	return sum
-}
-
 func Rand(x int, y int) [][]float64 {
-
 	out := make([][]float64, int(y))
 	for i := 0; i < x; i++ {
 		for m := 0; m < y; m++ {
@@ -42,7 +20,8 @@ func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 	if len(x[0]) != len(y) {
 		return nil, errors.New("Dimensions not valid")
 	}
-	out := make([][]float64, len(x), len(y[0]))
+
+	out := make([][]float64, len(x))
 	for i := 0; i < len(x); i++ {
 		for j := 0; j < len(y[0]); j++ {
 			out[i] = append(out[i], 0)
@@ -55,7 +34,15 @@ func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 	return out, nil
 }
 
+func Reverse(s []interface{}) []interface{} {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+	return s
+}
+
 func Transpose(slice [][]float64) [][]float64 {
+	fmt.Println("in", slice)
 	xl := len(slice[0])
 	yl := len(slice)
 	result := make([][]float64, xl)
@@ -68,4 +55,22 @@ func Transpose(slice [][]float64) [][]float64 {
 		}
 	}
 	return result
+}
+
+func Resize(matrix [][]float64, y int, x int) [][]float64 {
+	out := [][]float64{}
+	flat := []float64{}
+	for _, i := range matrix {
+		for _, o := range i {
+			flat = append(flat, o)
+		}
+
+	}
+	for i := 0; i < y; i++ {
+		for o := 0; o < x; o++ {
+			out[i][o] = flat[0]
+			flat = flat[1:]
+		}
+	}
+	return out
 }

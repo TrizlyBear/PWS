@@ -1,7 +1,8 @@
-package cnn
+package failed
 
 import (
 	"errors"
+	"github.com/TrizlyBear/PWS/math"
 	//"fmt"
 	//"math"
 )
@@ -31,7 +32,7 @@ func (e Conv2D) Forward(in [][]float64, kfilter []float64) ([][]float64, error) 
 						all = append(all, in[q+y-1][w+x-1]*kfilter[len(all)])
 					}
 				}
-				var av = Sum(all)
+				var av = math.Sum(all)
 				out[y/e.Stride] = append(out[y/e.Stride], av)
 			}
 		}
