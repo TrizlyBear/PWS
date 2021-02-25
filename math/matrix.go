@@ -2,7 +2,6 @@ package math
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 )
 
@@ -42,7 +41,6 @@ func Reverse(s []interface{}) []interface{} {
 }
 
 func Transpose(slice [][]float64) [][]float64 {
-	fmt.Println("in", slice)
 	xl := len(slice[0])
 	yl := len(slice)
 	result := make([][]float64, xl)

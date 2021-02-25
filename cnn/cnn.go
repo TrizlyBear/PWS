@@ -8,12 +8,18 @@ import (
 
 type Cnn struct {
 	Layers []interface{}
+	Dim    dim
+}
+
+type dim struct {
+	x int
+	y int
 }
 
 func (e Cnn) forward(in [][]float64) [][]float64 {
 	for _, el := range e.Layers {
 		if layer, ok := el.(*FC); ok {
-			in = (*(&layer)).Forward(in)
+			in = (*(&layer)).Forward(in, e.Dim)
 		}
 		if layer, ok := el.(*Flatten); ok {
 			in, _ = (*(&layer)).Forward(in)
@@ -25,6 +31,7 @@ func (e Cnn) forward(in [][]float64) [][]float64 {
 func (e Cnn) backward(err [][]float64, lr float64) [][]float64 {
 	reversed := math2.Reverse(e.Layers)
 	for _, el := range reversed {
+		//fmt.Println("Back")
 		if layer, ok := el.(*FC); ok {
 			err = (*(&layer)).Backward(err, lr)
 		}
@@ -37,6 +44,8 @@ func (e Cnn) backward(err [][]float64, lr float64) [][]float64 {
 }
 
 func (e Cnn) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr float64) {
+	e.Dim.y = len(x_train[0])
+	e.Dim.x = len(x_train[0][0])
 	for i := 1; i < epochs+1; i++ {
 		err := 0.0
 		for ie, x := range x_train {
