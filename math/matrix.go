@@ -5,7 +5,7 @@ import (
 	"math/rand"
 )
 
-func Rand(x int, y int) [][]float64 {
+func Rand(y int, x int) [][]float64 {
 	out := make([][]float64, int(y))
 	for i := 0; i < x; i++ {
 		for m := 0; m < y; m++ {
@@ -17,7 +17,8 @@ func Rand(x int, y int) [][]float64 {
 
 func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 	if len(x[0]) != len(y) {
-		return nil, errors.New("Dimensions not valid")
+		//fmt.Println(x,y)
+		return nil, errors.New("Dimensions not valid %v %v")
 	}
 
 	out := make([][]float64, len(x))
