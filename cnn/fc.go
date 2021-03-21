@@ -12,7 +12,7 @@ type FC struct {
 	init    bool
 }
 
-func (e *FC) Forward(in [][]float64, size dim) [][]float64 {
+func (e *FC) Forward(in [][]float64) [][]float64 {
 	if e.init != true {
 
 		(*e).weights = math.Rand(len(in[0]), e.Out)

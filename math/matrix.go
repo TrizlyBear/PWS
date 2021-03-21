@@ -34,13 +34,6 @@ func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 	return out, nil
 }
 
-func Reverse(s []interface{}) []interface{} {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
-	}
-	return s
-}
-
 func Transpose(slice [][]float64) [][]float64 {
 	xl := len(slice[0])
 	yl := len(slice)
@@ -57,7 +50,11 @@ func Transpose(slice [][]float64) [][]float64 {
 }
 
 func Resize(matrix [][]float64, y int, x int) [][]float64 {
-	out := [][]float64{}
+	out := make([][]float64,y)
+	for i := range out {
+		out[i] = make([]float64, x)
+	}
+
 	flat := []float64{}
 	for _, i := range matrix {
 		for _, o := range i {
@@ -65,8 +62,10 @@ func Resize(matrix [][]float64, y int, x int) [][]float64 {
 		}
 
 	}
+	//fmt.Print(flat)
 	for i := 0; i < y; i++ {
 		for o := 0; o < x; o++ {
+			//fmt.Println("AAAAAAAAAA",out, flat)
 			out[i][o] = flat[0]
 			flat = flat[1:]
 		}
