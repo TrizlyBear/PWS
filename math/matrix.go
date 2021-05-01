@@ -2,6 +2,8 @@ package math
 
 import (
 	"errors"
+	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -71,4 +73,97 @@ func Resize(matrix [][]float64, y int, x int) [][]float64 {
 		}
 	}
 	return out
+}
+
+func Marge(in [][][]float64) [][][]float64 {
+	smallest := math.Inf(1)
+	biggest := math.Inf(-1)
+	for _, a := range in {
+		for _, b := range a {
+			for _, c := range b {
+				if c < smallest {
+					smallest = c
+				}
+			}
+		}
+	}
+	for x, a := range in {
+		for y, b := range a {
+			for z, _ := range b {
+				in[x][y][z] -= smallest
+			}
+		}
+	}
+	for _, a := range in {
+		for _, b := range a {
+			for _, c := range b {
+				if c > biggest {
+					biggest = c
+				}
+			}
+		}
+	}
+	for x, a := range in {
+		for y, b := range a {
+			for z, _ := range b {
+				in[x][y][z] *= 1 / biggest
+			}
+		}
+	}
+	return in
+}
+
+func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64 {
+	in := false
+	for _, x := range all {
+		checkcurrent := true
+		for y, a := range x {
+			for z, _ := range a {
+				if truevalue[y][z] != x[y][z] {
+					checkcurrent = false
+				}
+			}
+
+		}
+		if checkcurrent {
+			in = true
+		}
+	}
+	if !in {
+		fmt.Printf("True value not in all values #{lol}")
+		return 0
+	}
+
+	smallest := float64(math.Inf(1))
+	smallesti := -1
+
+	for i, z := range all {
+		total := 0.0
+		for y, a := range z {
+			for x, _ := range a {
+				total += math.Abs(z[y][x] - pred[y][x])
+			}
+		}
+
+		if total < smallest {
+			smallest = total
+			smallesti = i
+		}
+	}
+
+	isTrue := true
+	for y, z := range all[smallesti] {
+
+		for x, _ := range z {
+			if all[smallesti][y][x] != truevalue[y][x] {
+				isTrue = false
+			}
+		}
+	}
+
+	if isTrue {
+		return 1
+	} else {
+		return 0
+	}
 }

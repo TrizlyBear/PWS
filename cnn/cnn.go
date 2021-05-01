@@ -45,14 +45,8 @@ func (e Cnn) forward(in [][]float64) [][]float64 {
 
 func (e Cnn) backward(err [][]float64, lr float64) [][]float64 {
 	reversed := reverse(e.Layers)
-	for _, el := range reversed {
-		//fmt.Println("Back")
-		if layer, ok := el.(*FC); ok {
-			err = (*(&layer)).Backward(err, lr)
-		}
-		if layer, ok := el.(*Flatten); ok {
-			err = (*(&layer)).Backward(err, lr)
-		}
+	for _, el := range e.Layers {
+		err = (*(&el)).Backward(err, lr)
 	}
 	reversed = reverse(reversed)
 	return err
@@ -67,15 +61,13 @@ func (e Cnn) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr fl
 		err := 0.0
 		avg := []float64{}
 		for ie, x := range x_train {
-			//fmt.Println("lol")
 			out := e.forward(x)
-			//fmt.Println("out","object",ie)
 			err += math.Pow(y_train[ie][0][0]-out[0][0], 2)
-			avg = append(avg, (y_train[ie][0][0]-math.Abs(y_train[ie][0][0]-out[0][0]))/y_train[ie][0][0])
+			avg = append(avg, math2.Closest(out, y_train, y_train[ie]))
 			e.backward([][]float64{{2 * (out[0][0] - y_train[ie][0][0])}}, lr)
 		}
 		acc := math2.Mean(avg)
-		fmt.Println("Epoch", i, "Error", err, "Accuracy", acc)
+		fmt.Println("Epoch", i, "Error", err/float64(len(x_train)), "Accuracy", acc*100,"%")
 		res.Accuracy = acc
 		res.Error = err
 	}
