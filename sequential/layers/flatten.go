@@ -1,4 +1,4 @@
-package cnn
+package layers
 
 import (
 	"github.com/TrizlyBear/PWS/math"

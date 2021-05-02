@@ -1,4 +1,4 @@
-package cnn
+package layers
 
 import (
 	"fmt"
@@ -43,7 +43,7 @@ func (e FC) Backward(err [][]float64, lr float64) [][]float64 {
 	if er != nil {
 		fmt.Println(er)
 	}
-	
+
 	werr, er := math.Dot(math.Transpose(e.input), err)
 
 	if er != nil {

@@ -29,11 +29,11 @@ func (e *ReLu) Backward(err [][]float64, lr float64) [][]float64 {
 }
 
 type Tanh struct {
-	input [][]float64
+	Input [][]float64
 }
 
 func (e *Tanh) Forward(in [][]float64) [][]float64 {
-	(*e).input = in
+	(*e).Input = in
 	for y,el := range in {
 		for x,_ := range el {
 			in[y][x] = math.Tanh(in[y][x])
@@ -45,7 +45,7 @@ func (e *Tanh) Forward(in [][]float64) [][]float64 {
 func (e Tanh) Backward(err [][]float64, lr float64) [][]float64 {
 	for y,el := range err {
 		for x,_ := range el {
-			err[y][x] *= (1 - math.Pow(math.Tanh(e.input[y][x]),2))
+			err[y][x] *= (1 - math.Pow(math.Tanh(e.Input[y][x]),2))
 		}
 	}
 	return err
