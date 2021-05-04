@@ -1,14 +1,22 @@
-package main
+package testing
 
 import (
+	"fmt"
 	"github.com/TrizlyBear/PWS/sequential"
 	"github.com/TrizlyBear/PWS/sequential/activation"
 	"github.com/TrizlyBear/PWS/sequential/layers"
+	"testing"
 )
 
-func main() {
+// Save a model
+func TestSave(t *testing.T) {
 	XORx := [][][]float64{{{0.0, 0.0}}, {{0.0, 1.0}}, {{1.0, 0.0}}, {{1.0, 1.0}}}
 	XORy := [][][]float64{{{0.0}}, {{1.0}}, {{1.0}}, {{0.0}}}
-	n := &sequential.Cnn{Layers: []sequential.Layer{&layers.FC{Out: 10},&activation.Tanh{}, &layers.FC{Out: 1},&activation.Tanh{}}}
+	n := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 10},&activation.Tanh{}, &layers.FC{Out: 1},&activation.Tanh{}}}
 	n.Fit(XORx, XORy, 1000, 0.1)
+	err := n.Save("../models","test")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
+

@@ -13,7 +13,8 @@ import (
 	"time"
 )
 
-type Cnn struct {
+//
+type Model struct {
 	Name 	string
 	Layers 	[]Layer
 }
@@ -37,14 +38,14 @@ func reverse(s []Layer) []Layer {
 	return s
 }
 
-func (e Cnn) forward(in [][]float64) [][]float64 {
+func (e Model) forward(in [][]float64) [][]float64 {
 	for _, el := range e.Layers {
 		in = (*(&el)).Forward(in)
 	}
 	return in
 }
 
-func (e Cnn) backward(err [][]float64, lr float64) [][]float64 {
+func (e Model) backward(err [][]float64, lr float64) [][]float64 {
 	reversed := reverse(e.Layers)
 	for _, el := range e.Layers {
 		err = (*(&el)).Backward(err, lr)
@@ -53,11 +54,23 @@ func (e Cnn) backward(err [][]float64, lr float64) [][]float64 {
 	return err
 }
 
-func (e *Cnn) Add(layer Layer) {
+func (e *Model) Add(layer Layer) {
 	e.Layers = append(e.Layers, layer)
 }
 
-func (e *Cnn) Save(folder string, file ...string) error {
+func InterfaceDecode(decoder *gob.Decoder) Layer {
+
+	var d Layer
+
+	if err := decoder.Decode(&d); err != nil {
+		log.Fatal(err)
+	}
+
+	return d
+
+}
+
+func (e *Model) Save(folder string, file ...string) error {
 	if len(file) == 0 {
 		file = append(file, "sequential-" + time.Now().Format("2006-01-02T15:04:05-MST"))
 	}
@@ -78,19 +91,27 @@ func (e *Cnn) Save(folder string, file ...string) error {
 	gob.Register(layers.FC{})
 	gob.Register(activation.Tanh{})
 
+	layercount := len(e.Layers)
+
 	enc := gob.NewEncoder(f)
-	err = enc.Encode(e)
-	if err != nil {
-		return err
+
+	enc.Encode(layercount)
+
+	for _,layer := range e.Layers {
+		err = enc.Encode(layer)
+		if err != nil {
+			return err
+		}
 	}
+
 	return err
 }
 
-func (e Cnn) Predict(in [][]float64) [][]float64 {
+func (e Model) Predict(in [][]float64) [][]float64 {
 	return e.forward(in)
 }
 
-func Load(file string) (*Cnn,error) {
+func Load(file string) (*Model,error) {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatal("Couldn't open file")
@@ -99,17 +120,30 @@ func Load(file string) (*Cnn,error) {
 	gob.Register(layers.FC{})
 	gob.Register(activation.Tanh{})
 	gob.Register(new(Layer))
-	model := &Cnn{}
+	model := &Model{}
 	dec := gob.NewDecoder(f)
-	err = dec.Decode(model)
 
+	layercount := new(int)
+
+	err = dec.Decode(layercount)
+	fmt.Println(*layercount)
 	if err != nil {
 		return nil, err
 	}
+	for i := 0; i < *layercount; i++ {
+		fmt.Println(i)
+		var layer Layer
+		layer = InterfaceDecode(dec)
+		model.Layers = append(model.Layers, layer)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return model, nil
 }
 
-func (e Cnn) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr float64) Result {
+func (e Model) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr float64) Result {
 	//e.Dim.y = len(x_train[0])
 	//e.Dim.x = len(x_train[0][0])
 	start := time.Now()
@@ -124,7 +158,6 @@ func (e Cnn) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr fl
 			e.backward([][]float64{{2 * (out[0][0] - y_train[ie][0][0])}}, lr)
 		}
 		acc := math2.Mean(avg)
-		//fmt.Print("\033[H\033[2J")
 		fmt.Println("Epoch", i, "Error", err/float64(len(x_train)), "Accuracy", acc*100,"%")
 		res.Accuracy = acc
 		res.Error = err

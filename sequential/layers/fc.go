@@ -15,8 +15,7 @@ type FC struct {
 
 func (e *FC) Forward(in [][]float64) [][]float64 {
 	if e.init != true {
-
-		(*e).weights = math.Rand(len(in[0]), e.Out)
+		(*e).weights = math.Rand(len(in[0]), e.Out*len(in))
 		(*e).bias = math.Rand(1, e.Out)
 		(*e).init = true
 	}

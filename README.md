@@ -6,8 +6,8 @@
 ## Try it
 
 First clone the repository
-```sh
-git clone https://github.com/TrizlyBear/PWS.git
+```shell
+git clone https://github.com/TrizlyBear/PWS.git && cd PWS
 ```
 Then run one of the testing scripts
 ```shell
