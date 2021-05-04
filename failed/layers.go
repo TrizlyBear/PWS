@@ -31,56 +31,57 @@ func (e ReLu) Forward(in [][]float64) ([][]float64, error) {
 }
 
 func (e *FC) Forward(in [][]float64, out int, insize int) ([][]float64, error) {
-	fmt.Println("Forward")
-	if len(e.Biases) == 0 {
-		(*e).Biases = math2.Rand(1, 1)
-		if (*e).Out == 1 {
-			(*e).Weights = math2.Rand((*e).Out, (*e).In*(*e).In)
-		} else {
-			(*e).Weights = math2.Rand((*e).Out, (*e).In)
-		}
-
-		if (*e).Out == 1 {
-
-			if len(in) > 1 {
-				idk, _ := Flatten{}.Forward(in)
-				in = [][]float64{idk}
-				(*e).Input = in
-			}
-		} else {
-			(*e).Input = in
-		}
-
-	}
-	if (*e).Out == 1 {
-
-		if len(in) > 1 {
-			idk, _ := Flatten{}.Forward(in)
-			in = [][]float64{idk}
-		}
-	}
-
-	//fmt.Println("INWEIGHT" ,Transpose(in),Transpose(e.Weights))
-	/*output := [][]float64{}
-	if (*e).Out != 1 {*/
-	output, err := math2.Dot(math2.Transpose(in), math2.Transpose(e.Weights))
-	/*} else {
-		var idk []float64
-		for _,e := range in {
-			idk = append(idk, e*)
-		}
-	}*/
-
-	if err != nil {
-		fmt.Println(err.Error(), "Poop")
-	}
-	for y, el := range output {
-		for x, _ := range el {
-			output[y][x] += e.Biases[0][0]
-		}
-	}
-
-	return output, nil
+	//fmt.Println("Forward")
+	//if len(e.Biases) == 0 {
+	//	(*e).Biases = math2.Rand(1, 1)
+	//	if (*e).Out == 1 {
+	//		(*e).Weights = math2.Rand((*e).Out, (*e).In*(*e).In)
+	//	} else {
+	//		(*e).Weights = math2.Rand((*e).Out, (*e).In)
+	//	}
+	//
+	//	if (*e).Out == 1 {
+	//
+	//		if len(in) > 1 {
+	//			idk, _ := Flatten{}.Forward(in)
+	//			in = [][]float64{idk}
+	//			(*e).Input = in
+	//		}
+	//	} else {
+	//		(*e).Input = in
+	//	}
+	//
+	//}
+	//if (*e).Out == 1 {
+	//
+	//	if len(in) > 1 {
+	//		idk, _ := Flatten{}.Forward(in)
+	//		in = [][]float64{idk}
+	//	}
+	//}
+	//
+	////fmt.Println("INWEIGHT" ,Transpose(in),Transpose(e.Weights))
+	///*output := [][]float64{}
+	//if (*e).Out != 1 {*/
+	//output, err := math2.Dot(math2.Transpose(in), math2.Transpose(e.Weights))
+	///*} else {
+	//	var idk []float64
+	//	for _,e := range in {
+	//		idk = append(idk, e*)
+	//	}
+	//}*/
+	//
+	//if err != nil {
+	//	fmt.Println(err.Error(), "Poop")
+	//}
+	//for y, el := range output {
+	//	for x, _ := range el {
+	//		output[y][x] += e.Biases[0][0]
+	//	}
+	//}
+	//
+	//return output, nil
+	return [][]float64{}, nil
 }
 
 func (e *FC) Backward(error float64, lr float64) [][]float64 {
