@@ -14,7 +14,7 @@ func TestSave(t *testing.T) {
 	XORy := [][][]float64{{{0.0}}, {{1.0}}, {{1.0}}, {{0.0}}}
 	n := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 10},&activation.Tanh{}, &layers.FC{Out: 1},&activation.Tanh{}}}
 	n.Fit(XORx, XORy, 1000, 0.1)
-	err := n.Save("./models","test")
+	err := n.Save("../models","test")
 	if err != nil {
 		fmt.Println(err)
 	}
