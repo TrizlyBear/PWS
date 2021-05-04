@@ -1,8 +1,10 @@
 # PWS [![Godoc](https://godoc.org/github.com/TrizlyBear/PWS?status.svg)](https://godoc.org/github.com/TrizlyBear/PWS) [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
+Simple layered neural network library made in Go.
 
-
-## Goal
-- Create a working Convolutional Neural Network
+## Goals
+- [x] Create a working Neural Network with Fully Connected layers
+- [ ] Solve MNIST
+- [ ] Create a working Convolutional Neural Network
 
 ## Try it
 
