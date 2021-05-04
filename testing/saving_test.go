@@ -5,6 +5,7 @@ import (
 	"github.com/TrizlyBear/PWS/sequential"
 	"github.com/TrizlyBear/PWS/sequential/activation"
 	"github.com/TrizlyBear/PWS/sequential/layers"
+	"os"
 	"testing"
 )
 
@@ -14,6 +15,7 @@ func TestSave(t *testing.T) {
 	XORy := [][][]float64{{{0.0}}, {{1.0}}, {{1.0}}, {{0.0}}}
 	n := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 10},&activation.Tanh{}, &layers.FC{Out: 1},&activation.Tanh{}}}
 	n.Fit(XORx, XORy, 1000, 0.1)
+	os.Mkdir("../models",os.ModeAppend)
 	err := n.Save("../models","test")
 	if err != nil {
 		fmt.Println(err)
