@@ -1,4 +1,5 @@
-# PWS
+# PWS [![Godoc](https://godoc.org/github.com/TrizlyBear/PWS?status.svg)](https://godoc.org/github.com/TrizlyBear/PWS) [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
+
 
 ## Goal
 - Create a working Convolutional Neural Network
@@ -11,8 +12,9 @@ git clone https://github.com/TrizlyBear/PWS.git && cd PWS
 ```
 Then run one of the testing scripts
 ```shell
-go run testing/mnist.go
+go run testing/xor_test.go
 ```
+
 Or try the module by importing it
 
 ```go
@@ -27,7 +29,7 @@ import (
 func main() {
 	x_train := [][][]float64{...}
 	y_train := [][][]float64{...}
-	model := &sequential.Cnn{Layers: []sequential.Layer{&layers.FC{Out: 10}, &activation.Tanh{}, &layers.FC{Out: 1}, &activation.Tanh{}}}
+	model := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 10}, &activation.Tanh{}, &layers.FC{Out: 1}, &activation.Tanh{}}}
 	model.Fit(x_train, y_train, 10, 0.1)
 }
 ```
