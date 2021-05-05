@@ -167,3 +167,20 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 		return 0
 	}
 }
+
+func MatriSubs(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
+	if len(m1) != len(m2) || len(m1[0]) != len(m2[0]) {
+		//fmt.Println(len(m1),len(m2),len(m1[0]),len(m2[0]))
+		return nil, errors.New("Dimensions do not match. "+string(len(m1))+" is not "+string(len(m2))+" or "+string(len(m1[0]))+" is not "+string(len(m2[0])))
+	}
+	out := [][]float64{}
+	for y,ely := range m1 {
+		row := []float64{}
+		for x,_ := range ely {
+			row = append(row, m1[y][x] - m2[y][x])
+		}
+		out = append(out, row)
+	}
+
+	return out, nil
+}

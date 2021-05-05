@@ -23,5 +23,4 @@ jobs:
     - name: Test
       run: |
         go get -u github.com/TrizlyBear/PWS/...
-        mkdir models
-        go test ./testing/...
+        go test ./testing/xor_test.go

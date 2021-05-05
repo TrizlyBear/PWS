@@ -6,10 +6,12 @@ import (
 	math2 "github.com/TrizlyBear/PWS/math"
 	"github.com/TrizlyBear/PWS/sequential/activation"
 	"github.com/TrizlyBear/PWS/sequential/layers"
+	"github.com/charmbracelet/bubbles/progress"
+	"github.com/muesli/termenv"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -149,22 +151,72 @@ func (e Model) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr 
 	start := time.Now()
 	res := Result{Epochs: epochs}
 	for i := 1; i < epochs+1; i++ {
-		err := 0.0
+		er := 0.0
 		avg := []float64{}
 		for ie, x := range x_train {
 			out := e.forward(x)
-			err += math.Pow(y_train[ie][0][0]-out[0][0], 2)
+			disperr, err := math2.MatriSubs(y_train[ie],out)
+			if err != nil {
+				fmt.Println(err)
+			}
+			for y,_ := range disperr {
+				for x,_ := range disperr[0] {
+					disperr[y][x] *= disperr[y][x]
+				}
+			}
+			dispavg := []float64{}
+			for _,row := range disperr {
+				dispavg = append(dispavg, math2.Mean(row))
+			}
+			er += math2.Mean(dispavg)
 			avg = append(avg, math2.Closest(out, y_train, y_train[ie]))
-			e.backward([][]float64{{2 * (out[0][0] - y_train[ie][0][0])}}, lr)
+
+			realerr, err := math2.MatriSubs(out, y_train[ie])
+			if err != nil {
+				fmt.Println(err)
+			}
+			for y,_ := range realerr {
+				for x,_ := range realerr[0] {
+					realerr[y][x] *= 2
+				}
+			}
+			e.backward(realerr, lr)
+
+			Print(i, epochs, ie + 1, len(x_train), math2.Mean(avg), er)
 		}
 		acc := math2.Mean(avg)
-		fmt.Println("Epoch", i, "Error", err/float64(len(x_train)), "Accuracy", acc*100,"%")
+
+		// Print UI
+		//fmt.Println("Epoch", i, "Error", err/float64(len(x_train)), "Accuracy", acc*100,"%")
 		res.Accuracy = acc
-		res.Error = err
+		res.Error = er
 	}
 	end := time.Since(start)
 
 	res.Duration = end
 
 	return res
+}
+
+func Print(epoch int, epochs int, item int, items int, acc float64, er float64)  {
+	prog, err := progress.NewModel(progress.WithDefaultScaledGradient(),progress.WithoutPercentage(),)
+	if err != nil {
+		panic(err)
+	}
+
+	if epoch != 1 || item != 1 {
+		termenv.ClearLines(6)
+	}
+	fmt.Println("")
+	fmt.Println("Error:\t\t", er/float64(items))
+	fmt.Println("Accuracy:\t",(acc*100),"%")
+	fmt.Print("Items	")
+	itemBar := termenv.String(prog.View(float64(item)/float64(items))).Foreground(termenv.ANSIMagenta)
+	fmt.Print(strings.Replace(itemBar.String(),"░",termenv.String("█").Foreground(termenv.ANSIWhite).String(),-1))
+	fmt.Println("\t",item,"\t/\t",items)
+	fmt.Print("Epochs	")
+	epochBar := termenv.String(prog.View(float64(epoch)/float64(epochs))).Foreground(termenv.ANSIBrightMagenta)
+	fmt.Print(strings.Replace(epochBar.String(),"░",termenv.String("█").Foreground(termenv.ANSIBrightWhite).String(),-1))
+	fmt.Println("\t",epoch,"\t/\t",epochs)
+	fmt.Println("")
 }

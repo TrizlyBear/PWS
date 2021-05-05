@@ -3,14 +3,14 @@ Simple layered neural network library made in Go.
 
 ## Goals
 - [x] Create a working Neural Network with Fully Connected layers
-- [ ] Solve MNIST
+- [x] Solve MNIST
 - [ ] Create a working Convolutional Neural Network
 
 ## Try it
 
 First clone the repository
 ```shell
-git clone https://github.com/TrizlyBear/PWS.git && cd PWS
+git clone https://github.com/TrizlyBear/PWS.git/... && cd PWS
 ```
 Then run one of the testing scripts
 ```shell
@@ -29,9 +29,14 @@ import (
 )
 
 func main() {
+	// Create a training set consisting of training values and labels
 	x_train := [][][]float64{...}
 	y_train := [][][]float64{...}
+	
+	// Initialize a model consisting of 2 fully connected layers and 2 activation layers
 	model := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 10}, &activation.Tanh{}, &layers.FC{Out: 1}, &activation.Tanh{}}}
+	
+	// Train the model
 	model.Fit(x_train, y_train, 10, 0.1)
 }
 ```
