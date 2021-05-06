@@ -1,12 +1,12 @@
-package dataset
+package PWS
 
 import (
 	"encoding/csv"
 	"errors"
 	"github.com/TrizlyBear/PWS/math"
+	"github.com/TrizlyBear/PWS/utils"
 	math2 "math"
 	"os"
-	"reflect"
 	"strconv"
 )
 
@@ -16,16 +16,6 @@ type Dataset struct {
 	Name 	string
 	X 		[][][]float64
 	Y 		[][][]float64
-}
-
-func inlist(list interface{}, item interface{}) bool {
-	listVal := reflect.ValueOf(list)
-	for i := 0; i < listVal.Len(); i++ {
-		if listVal.Index(i).Interface() == item {
-			return true
-		}
-	}
-	return false
 }
 
 func Max(max int) datasetOption {
@@ -73,7 +63,7 @@ func FromCSV(file string, labels []int, options ...datasetOption) (*Dataset, err
 			if err != nil {
 				panic(err)
 			}
-			if inlist(labels, i) {
+			if utils.Inlist(labels, i) {
 				y[0] = append(y[0], val)
 			} else {
 				x[0] = append(x[0], val)

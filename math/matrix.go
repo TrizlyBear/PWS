@@ -75,7 +75,7 @@ func Resize(matrix [][]float64, y int, x int) [][]float64 {
 	return out
 }
 
-func Marge(in [][][]float64) [][][]float64 {
+func Normalize(in [][][]float64) [][][]float64 {
 	smallest := math.Inf(1)
 	biggest := math.Inf(-1)
 	for _, a := range in {

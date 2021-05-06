@@ -18,7 +18,7 @@ func TestMnist(t *testing.T)  {
 	if err != nil {
 		panic(err)
 	}
-
+	ds.Reshape(28,28)
 	X_t, Y_t, X_v, Y_v := ds.Split(0.8)
 
 	n := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 100},&activation.Tanh{}, &layers.FC{Out: 50},&activation.Tanh{},&layers.FC{Out: 10},&activation.Tanh{}}}
