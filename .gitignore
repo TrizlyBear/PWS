@@ -1,5 +1,7 @@
 # Databases
 datasets/
 
+.idea/
+
 # Saved models
 models/
