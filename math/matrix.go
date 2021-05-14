@@ -184,3 +184,31 @@ func MatriSubs(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
 
 	return out, nil
 }
+
+// Stacks two matrices horizontally
+func VertStack(x [][]float64, y [][]float64) [][]float64 {
+	for _,row := range y {
+		x = append(x, row)
+	}
+	return x
+}
+
+func HorzStack(x [][]float64, y [][]float64) [][]float64 {
+	for i,_ := range y {
+		for ix,_ := range y[i] {
+			x[i] = append(x[i], y[i][ix])
+		}
+	}
+	return x
+}
+
+func Zeros(x int, y int) (out [][]float64) {
+	for i := 0; i < y; i++ {
+		row := []float64{}
+		for o := 0; o < x; o++ {
+			row = append(row, 0)
+		}
+		out = append(out, row)
+	}
+	return out
+}

@@ -3,11 +3,15 @@ package PWS
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"github.com/TrizlyBear/PWS/math"
 	"github.com/TrizlyBear/PWS/utils"
+	"image/jpeg"
+	"io/ioutil"
 	math2 "math"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type datasetOption func(*Dataset)
@@ -22,6 +26,14 @@ func Max(max int) datasetOption {
 	return func(dataset *Dataset) {
 		dataset.X = dataset.X[:max]
 		dataset.Y = dataset.Y[:max]
+	}
+}
+
+func Resize(x, y int) datasetOption {
+	return func(dataset *Dataset) {
+		for i,X := range dataset.X {
+			dataset.X[i] = utils.Resize(x,y,utils.MatToImg(X))
+		}
 	}
 }
 
@@ -96,4 +108,38 @@ func (ds *Dataset) Split(train_size float64) ([][][]float64, [][][]float64, [][]
 	from := int(math2.Round(float64(len(ds.X)) * train_size))
 
 	return ds.X[:from], ds.Y[:from], ds.X[from:], ds.Y[from:]
+}
+
+func FromFolder(folder string, options ...datasetOption) (*Dataset, error)  {
+	set := &Dataset{}
+
+	folders, err := ioutil.ReadDir(folder)
+	
+	for i, dir := range folders {
+		if dir.IsDir() {
+			images, _ := ioutil.ReadDir(folder+"/"+dir.Name())
+			for ie,img := range images {
+				fmt.Println(ie,"/",len(images))	
+
+				if strings.HasSuffix(img.Name(),".jpg")  || strings.HasSuffix(img.Name(),".jpeg"){
+					x, err := utils.ReadImage(folder + "/"+dir.Name()+"/"+img.Name(), jpeg.Decode)
+					if err != nil {
+						return nil, err
+					}
+					set.X = append(set.X, x)
+					set.Y = append(set.Y, [][]float64{{float64(i)}})
+				}
+			}
+		}	
+	}
+
+	if err != nil {
+		return nil,err
+	}
+
+	for _,option := range options {
+		option(set)
+	}
+
+	return set, nil
 }

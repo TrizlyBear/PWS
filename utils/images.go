@@ -1,22 +1,59 @@
 package utils
 
 import (
+	"github.com/TrizlyBear/PWS/math"
+	"github.com/nfnt/resize"
 	"image"
 	"image/color"
 	"image/jpeg"
+	"io"
 	"os"
 )
 
-func ReadImage(path string) ([][]float64,error) {
+type decoder func(io.Reader) (image.Image, error)
+
+func ReadImage(path string, dec decoder) ([][]float64,error) {
 	i, err := os.Open(path)
 	if err != nil {
 		panic(err)
 	}
 	defer i.Close()
-	img, err := jpeg.Decode(i)
+	img, err := dec(i)
+	out := ImgToMat(img)
+	return out, nil
+}
+
+func SaveImage(input [][]float64, path string) error {
+	img := MatToImg(input)
+	file, err := os.Create(path)
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
+	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 90})
+	if err != nil {
+		panic(err)
+	}
+	return nil
+}
+
+func MatToImg(input [][]float64)  image.Image  {
+	img := image.NewRGBA(image.Rect(0,0,len(input[0]), len(input)))
+
+	for y := 0; y < len(input); y++ {
+		for x := 0; x < len(input[0]); x++ {
+			img.Set(x,y, color.RGBA{
+				R: uint8(input[y][x]*255),
+				G: uint8(input[y][x]*255),
+				B: uint8(input[y][x]*255),
+				A: 1,
+			})
+		}
+	}
+	return img
+}
+
+func ImgToMat(img image.Image) [][]float64 {
 	out := [][]float64{}
 	bounds := img.Bounds()
 	for y := 0; y < bounds.Dy(); y++  {
@@ -31,31 +68,19 @@ func ReadImage(path string) ([][]float64,error) {
 		}
 		out = append(out, row)
 	}
-	return out, nil
+	return out
 }
 
-func SaveImage(input [][]float64, path string) error {
-	img := image.NewRGBA(image.Rect(0,0,len(input[0]), len(input)))
-
-	for y:= 0; y < len(input); y++ {
-		for x:= 0; x < len(input[0]); x++ {
-			//fmt.Println()
-			img.Set(x,y, color.RGBA{
-				R: uint8(input[y][x]*255),
-				G: uint8(input[y][x]*255),
-				B: uint8(input[y][x]*255),
-				A: 1,
-			})
-		}
+func Resize(x, y int,  img image.Image)  [][]float64 {
+	resized := resize.Thumbnail(uint(x),uint(y),img,resize.Lanczos3)
+	out := ImgToMat(resized)
+	if y > resized.Bounds().Dy() {
+		add := math.Zeros(len(out[0]), y-len(out))
+		out = math.VertStack(out, add)
 	}
-	file, err := os.Create(path)
-	if err != nil {
-		panic(err)
+	if x > resized.Bounds().Dx() {
+		add := math.Zeros(x-len(out[0]), len(out))
+		out = math.HorzStack(out, add)
 	}
-	defer file.Close()
-	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 90})
-	if err != nil {
-		panic(err)
-	}
-	return nil
+	return out
 }

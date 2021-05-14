@@ -10,7 +10,7 @@ Simple layered neural network library made in Go.
 
 First clone the repository
 ```shell
-git clone https://github.com/TrizlyBear/PWS.git/... && cd PWS
+git clone https://github.com/TrizlyBear/PWS.git && cd PWS
 ```
 Then run one of the testing scripts
 ```shell
@@ -18,6 +18,10 @@ go run testing/xor_test.go
 ```
 
 Or try the module by importing it
+
+```shell
+go get github.com/TrizlyBear/PWS/...
+```
 
 ```go
 package main

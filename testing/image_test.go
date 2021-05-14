@@ -3,6 +3,7 @@ package testing
 import (
 	_ "github.com/TrizlyBear/PWS/math"
 	"github.com/TrizlyBear/PWS/utils"
+	"image/jpeg"
 	"io/ioutil"
 	"log"
 	"testing"
@@ -17,7 +18,7 @@ func TestImage(t *testing.T) {
 
 	for _, f := range files[:len(files)-1] {
 		if !f.IsDir() {
-			img, _ := utils.ReadImage("../datasets/images/" + f.Name())
+			img, _ := utils.ReadImage("../datasets/images/" + f.Name(), jpeg.Decode)
 			utils.SaveImage(img, "../datasets/images/out/" + f.Name())
 		}
 	}
