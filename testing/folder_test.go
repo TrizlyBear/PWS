@@ -7,11 +7,15 @@ import (
 )
 
 func TestFolder(t *testing.T) {
-	set, err := dataset.FromFolder("../datasets/Training", dataset.Resize(100,100))
+	set, err := dataset.FromFolder("../datasets/Training", /*dataset.Resize(100,100)*/)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(len(set.X))
 
+	err = dataset.SaveDS(set,"../datasets/images.bin")
+	if err != nil {
+		panic(err)
+	}
 }

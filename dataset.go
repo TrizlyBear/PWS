@@ -2,8 +2,8 @@ package PWS
 
 import (
 	"encoding/csv"
+	"encoding/gob"
 	"errors"
-	"fmt"
 	"github.com/TrizlyBear/PWS/math"
 	"github.com/TrizlyBear/PWS/utils"
 	"image/jpeg"
@@ -119,8 +119,8 @@ func FromFolder(folder string, options ...datasetOption) (*Dataset, error)  {
 		if dir.IsDir() {
 			images, _ := ioutil.ReadDir(folder+"/"+dir.Name())
 			for ie,img := range images {
-				fmt.Println(ie,"/",len(images))	
-
+				//fmt.Println(ie,"/",len(images))
+				_ = ie
 				if strings.HasSuffix(img.Name(),".jpg")  || strings.HasSuffix(img.Name(),".jpeg"){
 					x, err := utils.ReadImage(folder + "/"+dir.Name()+"/"+img.Name(), jpeg.Decode)
 					if err != nil {
@@ -141,5 +141,36 @@ func FromFolder(folder string, options ...datasetOption) (*Dataset, error)  {
 		option(set)
 	}
 
+	return set, nil
+}
+
+func SaveDS(dataset *Dataset, file string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	gob.Register(Dataset{})
+	enc := gob.NewEncoder(f)
+	err = enc.Encode(dataset)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func LoadDS(file string) (*Dataset, error)  {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	set := &Dataset{}
+	dec := gob.NewDecoder(f)
+	err = dec.Decode(set)
+	if err != nil {
+		return nil, err
+	}
 	return set, nil
 }
