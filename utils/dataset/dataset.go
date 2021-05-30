@@ -1,4 +1,4 @@
-package PWS
+package dataset
 
 import (
 	"encoding/csv"
@@ -6,12 +6,13 @@ import (
 	"errors"
 	"github.com/TrizlyBear/PWS/math"
 	"github.com/TrizlyBear/PWS/utils"
-	"image/jpeg"
 	"io/ioutil"
 	math2 "math"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type datasetOption func(*Dataset)
@@ -37,7 +38,7 @@ func Resize(x, y int) datasetOption {
 	}
 }
 
-func LabelToIndex(length int) datasetOption{
+func LabelToIndex(length int) datasetOption {
 	return func(dataset *Dataset) {
 		for i,x := range dataset.Y {
 			yar := [][]float64{{}}
@@ -110,7 +111,7 @@ func (ds *Dataset) Split(train_size float64) ([][][]float64, [][][]float64, [][]
 	return ds.X[:from], ds.Y[:from], ds.X[from:], ds.Y[from:]
 }
 
-func FromFolder(folder string, options ...datasetOption) (*Dataset, error)  {
+func FromFolder(folder string, dec utils.Decoder, x,y int, options ...datasetOption) (*Dataset, error)  {
 	set := &Dataset{}
 
 	folders, err := ioutil.ReadDir(folder)
@@ -121,10 +122,19 @@ func FromFolder(folder string, options ...datasetOption) (*Dataset, error)  {
 			for ie,img := range images {
 				//fmt.Println(ie,"/",len(images))
 				_ = ie
-				if strings.HasSuffix(img.Name(),".jpg")  || strings.HasSuffix(img.Name(),".jpeg"){
-					x, err := utils.ReadImage(folder + "/"+dir.Name()+"/"+img.Name(), jpeg.Decode)
+				if strings.HasSuffix(img.Name(),".jpg")  || strings.HasSuffix(img.Name(),".jpeg") || strings.HasSuffix(img.Name(),".png"){
+					im, err := os.Open(folder + "/"+dir.Name()+"/"+img.Name())
 					if err != nil {
-						return nil, err
+						panic(err)
+					}
+
+					img, err := dec(im)
+					im.Close()
+					x := utils.Resize(x,y,img)
+					for y,_ := range x{
+						for X,_ := range x[0] {
+							x[y][X] = 1 - x[y][X]
+						}
 					}
 					set.X = append(set.X, x)
 					set.Y = append(set.Y, [][]float64{{float64(i)}})
@@ -173,4 +183,16 @@ func LoadDS(file string) (*Dataset, error)  {
 		return nil, err
 	}
 	return set, nil
+}
+
+func (ds *Dataset) Normalize() {
+	ds.X = math.Normalize(ds.X)
+	ds.Y = math.Normalize(ds.Y)
+}
+
+func (ds *Dataset) Shuffle() {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(ds.X), func(i, j int) { ds.X[i], ds.X[j] = ds.X[j], ds.X[i] })
+	rand.Shuffle(len(ds.Y), func(i, j int) { ds.Y[i], ds.Y[j] = ds.Y[j], ds.Y[i] })
+
 }

@@ -3,18 +3,18 @@ package testing
 import (
 	"fmt"
 	_ "fmt"
-	dataset "github.com/TrizlyBear/PWS"
 	"github.com/TrizlyBear/PWS/math"
 	"github.com/TrizlyBear/PWS/sequential"
 	"github.com/TrizlyBear/PWS/sequential/activation"
 	"github.com/TrizlyBear/PWS/sequential/layers"
+	dataset2 "github.com/TrizlyBear/PWS/utils/dataset"
 	"testing"
 )
 
 // Test the MNIST dataset
 func TestMnist(t *testing.T)  {
 	// Install from https://www.kaggle.com/c/digit-recognizer/data?select=train.csv
-	ds, err := dataset.FromCSV("../datasets/mnist_train.csv",[]int{0},dataset.Max(10000),dataset.LabelToIndex(10))
+	ds, err := dataset2.FromCSV("../datasets/mnist_train.csv",[]int{0}, dataset2.Max(10000), dataset2.LabelToIndex(10))
 	if err != nil {
 		panic(err)
 	}

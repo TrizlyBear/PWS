@@ -10,9 +10,9 @@ import (
 	"os"
 )
 
-type decoder func(io.Reader) (image.Image, error)
+type Decoder func(io.Reader) (image.Image, error)
 
-func ReadImage(path string, dec decoder) ([][]float64,error) {
+func ReadImage(path string, dec Decoder) ([][]float64,error) {
 	i, err := os.Open(path)
 	if err != nil {
 		panic(err)

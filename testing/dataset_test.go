@@ -2,12 +2,12 @@ package testing
 
 import (
 	"fmt"
-	dataset "github.com/TrizlyBear/PWS"
+	dataset2 "github.com/TrizlyBear/PWS/utils/dataset"
 	"testing"
 )
 
 func TestDataset(t *testing.T) {
-	ds, err := dataset.FromCSV("../datasets/mnist_train.csv",[]int{0},dataset.Max(2))
+	ds, err := dataset2.FromCSV("../datasets/mnist_train.csv",[]int{0}, dataset2.Max(2))
 	if err != nil {
 		panic(err)
 	}
