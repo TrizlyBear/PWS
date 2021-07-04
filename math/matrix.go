@@ -35,7 +35,7 @@ func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 
 	return out, nil
 }
-
+// determines the correct dimensions of the matrix.
 func Transpose(slice [][]float64) [][]float64 {
 	xl := len(slice[0])
 	yl := len(slice)
@@ -74,7 +74,7 @@ func Resize(matrix [][]float64, y int, x int) [][]float64 {
 	}
 	return out
 }
-
+// determines the right size.
 func Normalize(in [][][]float64) [][][]float64 {
 	smallest := math.Inf(1)
 	biggest := math.Inf(-1)
@@ -94,6 +94,7 @@ func Normalize(in [][][]float64) [][][]float64 {
 			}
 		}
 	}
+// makes sure the matrix is not too small.
 	for _, a := range in {
 		for _, b := range a {
 			for _, c := range b {
@@ -112,7 +113,7 @@ func Normalize(in [][][]float64) [][][]float64 {
 	}
 	return in
 }
-
+// makes sure the matrix is not too big.
 func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64 {
 	in := false
 	for _, x := range all {
@@ -133,7 +134,7 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 		fmt.Printf("True value not in all values #{lol}")
 		return 0
 	}
-
+// makes sure the values in the matrix are what they need to be.
 	smallest := float64(math.Inf(1))
 	smallesti := -1
 
@@ -150,7 +151,6 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 			smallesti = i
 		}
 	}
-
 	isTrue := true
 	for y, z := range all[smallesti] {
 
@@ -160,7 +160,7 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 			}
 		}
 	}
-
+// and making sure the AI doesnt have to work with incorresponding values.
 	if isTrue {
 		return 1
 	} else {
@@ -192,7 +192,7 @@ func VertStack(x [][]float64, y [][]float64) [][]float64 {
 	}
 	return x
 }
-
+// The function for stacking matrices vertically.
 func HorzStack(x [][]float64, y [][]float64) [][]float64 {
 	for i,_ := range y {
 		for ix,_ := range y[i] {
@@ -201,7 +201,7 @@ func HorzStack(x [][]float64, y [][]float64) [][]float64 {
 	}
 	return x
 }
-
+// The function for stacking matrices horizontally.
 func Zeros(x int, y int) (out [][]float64) {
 	for i := 0; i < y; i++ {
 		row := []float64{}
@@ -212,3 +212,4 @@ func Zeros(x int, y int) (out [][]float64) {
 	}
 	return out
 }
+// makes sure the matrices start on the right place, that being the first row of pixels(?).
