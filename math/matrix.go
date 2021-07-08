@@ -7,6 +7,7 @@ import (
 	"math/rand"
 )
 
+// Creates a matrix with random values
 func Rand(y int, x int) [][]float64 {
 	out := make([][]float64, int(y))
 	for i := 0; i < x; i++ {
@@ -17,6 +18,7 @@ func Rand(y int, x int) [][]float64 {
 	return out
 }
 
+// Multiplies two matrices
 func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 	if len(x[0]) != len(y) {
 		//fmt.Println(x,y)
@@ -35,7 +37,8 @@ func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 
 	return out, nil
 }
-// determines the correct dimensions of the matrix.
+
+// Determines the correct dimensions of the matrix.
 func Transpose(slice [][]float64) [][]float64 {
 	xl := len(slice[0])
 	yl := len(slice)
@@ -51,6 +54,7 @@ func Transpose(slice [][]float64) [][]float64 {
 	return result
 }
 
+// Resizes the matrix
 func Resize(matrix [][]float64, y int, x int) [][]float64 {
 	out := make([][]float64,y)
 	for i := range out {
@@ -64,17 +68,17 @@ func Resize(matrix [][]float64, y int, x int) [][]float64 {
 		}
 
 	}
-	//fmt.Print(flat)
+
 	for i := 0; i < y; i++ {
 		for o := 0; o < x; o++ {
-			//fmt.Println("AAAAAAAAAA",out, flat)
 			out[i][o] = flat[0]
 			flat = flat[1:]
 		}
 	}
 	return out
 }
-// determines the right size.
+
+// Normalizes the values between <0,1>
 func Normalize(in [][][]float64) [][][]float64 {
 	smallest := math.Inf(1)
 	biggest := math.Inf(-1)
@@ -94,7 +98,7 @@ func Normalize(in [][][]float64) [][][]float64 {
 			}
 		}
 	}
-// makes sure the matrix is not too small.
+	
 	for _, a := range in {
 		for _, b := range a {
 			for _, c := range b {
@@ -113,7 +117,8 @@ func Normalize(in [][][]float64) [][][]float64 {
 	}
 	return in
 }
-// makes sure the matrix is not too big.
+
+// Checks if the predicted value is the closest to the true value, returns 1 if true, 0 if false
 func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64 {
 	in := false
 	for _, x := range all {
@@ -134,7 +139,7 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 		fmt.Printf("True value not in all values #{lol}")
 		return 0
 	}
-// makes sure the values in the matrix are what they need to be.
+	
 	smallest := float64(math.Inf(1))
 	smallesti := -1
 
@@ -160,7 +165,7 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 			}
 		}
 	}
-// and making sure the AI doesnt have to work with incorresponding values.
+	
 	if isTrue {
 		return 1
 	} else {
@@ -168,9 +173,10 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 	}
 }
 
+// Substracts two matrices
 func MatriSubs(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
 	if len(m1) != len(m2) || len(m1[0]) != len(m2[0]) {
-		//fmt.Println(len(m1),len(m2),len(m1[0]),len(m2[0]))
+		// Returns error if dimensions do not match
 		return nil, errors.New("Dimensions do not match. "+string(len(m1))+" is not "+string(len(m2))+" or "+string(len(m1[0]))+" is not "+string(len(m2[0])))
 	}
 	out := [][]float64{}
@@ -185,14 +191,15 @@ func MatriSubs(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
 	return out, nil
 }
 
-// Stacks two matrices horizontally
+// Stacks two matrices vertically
 func VertStack(x [][]float64, y [][]float64) [][]float64 {
 	for _,row := range y {
 		x = append(x, row)
 	}
 	return x
 }
-// The function for stacking matrices vertically.
+
+// Stacks two matrices horizontally
 func HorzStack(x [][]float64, y [][]float64) [][]float64 {
 	for i,_ := range y {
 		for ix,_ := range y[i] {
@@ -201,7 +208,7 @@ func HorzStack(x [][]float64, y [][]float64) [][]float64 {
 	}
 	return x
 }
-// The function for stacking matrices horizontally.
+// Creates a matrix of zeros with dimentions x and y
 func Zeros(x int, y int) (out [][]float64) {
 	for i := 0; i < y; i++ {
 		row := []float64{}
@@ -212,4 +219,3 @@ func Zeros(x int, y int) (out [][]float64) {
 	}
 	return out
 }
-// makes sure the matrices start on the right place, that being the first row of pixels(?).
