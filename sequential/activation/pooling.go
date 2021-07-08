@@ -5,16 +5,13 @@ import (
 	"github.com/TrizlyBear/PWS/math"
 )
 
+// Maximum pooling layer
 type MaxPooling struct {
 	Ksize  int
 	Stride int
 }
 
-type AvgPooling struct {
-	Ksize  int
-	Stride int
-}
-
+// Maximum pooling forward function
 func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 	if len(in[0]) != len(in) {
 		return [][]float64{{-1}}, errors.New("Input is not a square")
@@ -41,13 +38,19 @@ func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 	return out, nil
 }
 
+// Average pooling layer
+type AvgPooling struct {
+	Ksize  int
+	Stride int
+}
+
+// Average pooling forward function
 func (e AvgPooling) Forward(in [][]float64) ([][]float64, error) {
 	if len(in[0]) != len(in) {
 		return [][]float64{{-1}}, errors.New("Input is not a square")
 	}
 	var outsize = (len(in)-e.Ksize)/e.Stride + 1
 	var out = make([][]float64, outsize)
-	//fmt.Printf("outsize %v", outsize)
 	for y, _ := range in {
 		for x, _ := range in[y] {
 			if y%e.Stride == 0 && x%e.Stride == 0 {
