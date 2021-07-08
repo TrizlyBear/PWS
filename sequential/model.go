@@ -15,17 +15,19 @@ import (
 	"time"
 )
 
-//
+// Defines a sequential model
 type Model struct {
 	Name 	string
 	Layers 	[]Layer
 }
 
+// Defines a layer with the functions for forward propagation and backward propagation
 type Layer interface {
 	Forward([][]float64) [][]float64
 	Backward([][]float64, float64) [][]float64
 }
 
+// Defines a result object to analyze duration, error, acc etc.
 type Result struct {
 	Epochs 		int
 	Duration 	time.Duration
@@ -33,6 +35,7 @@ type Result struct {
 	Accuracy	float64
 }
 
+// Reverses layers of the model
 func reverse(s []Layer) []Layer {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
@@ -40,6 +43,7 @@ func reverse(s []Layer) []Layer {
 	return s
 }
 
+// Computes the input into output by forwarding it through all the layers
 func (e Model) forward(in [][]float64) [][]float64 {
 	for _, el := range e.Layers {
 		in = (*(&el)).Forward(in)
@@ -47,6 +51,7 @@ func (e Model) forward(in [][]float64) [][]float64 {
 	return in
 }
 
+// Computes new weights for the layers by inputing the error of the output
 func (e Model) backward(err [][]float64, lr float64) [][]float64 {
 	reversed := reverse(e.Layers)
 	for _, el := range e.Layers {
@@ -56,10 +61,12 @@ func (e Model) backward(err [][]float64, lr float64) [][]float64 {
 	return err
 }
 
+// Adds a layer to the model
 func (e *Model) Add(layer Layer) {
 	e.Layers = append(e.Layers, layer)
 }
 
+// Decodes binary into a layer
 func InterfaceDecode(decoder *gob.Decoder) Layer {
 
 	var d Layer
@@ -72,6 +79,7 @@ func InterfaceDecode(decoder *gob.Decoder) Layer {
 
 }
 
+// Saves the model to a file
 func (e *Model) Save(folder string, file ...string) error {
 	if len(file) == 0 {
 		file = append(file, "sequential-" + time.Now().Format("2006-01-02T15:04:05-MST"))
@@ -109,10 +117,12 @@ func (e *Model) Save(folder string, file ...string) error {
 	return err
 }
 
+// Let the model compute an output for the given input
 func (e Model) Predict(in [][]float64) [][]float64 {
 	return e.forward(in)
 }
 
+// Loads a model from a file
 func Load(file string) (*Model,error) {
 	f, err := os.Open(file)
 	if err != nil {
@@ -145,32 +155,39 @@ func Load(file string) (*Model,error) {
 	return model, nil
 }
 
+// Trains the network
 func (e Model) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr float64) Result {
-	//e.Dim.y = len(x_train[0])
-	//e.Dim.x = len(x_train[0][0])
+	// Times the execution time
 	start := time.Now()
 	res := Result{Epochs: epochs}
+	// Train for an amount of epochs
 	for i := 1; i < epochs+1; i++ {
 		er := 0.0
 		avg := []float64{}
+		// Forward and backward propagate all the objects through the model
 		for ie, x := range x_train {
 			out := e.forward(x)
 			disperr, err := math2.MatriSubs(y_train[ie],out)
 			if err != nil {
 				fmt.Println(err)
 			}
+			// Squares all the values in the outputut error
 			for y,_ := range disperr {
 				for x,_ := range disperr[0] {
 					disperr[y][x] *= disperr[y][x]
 				}
 			}
+			// Calculates the mean of the error
 			dispavg := []float64{}
 			for _,row := range disperr {
 				dispavg = append(dispavg, math2.Mean(row))
 			}
 			er += math2.Mean(dispavg)
+			
+			// Checks if the output is closest to the true value
 			avg = append(avg, math2.Closest(out, y_train, y_train[ie]))
 
+			// Calculates the actual error by substracting the output with the true value
 			realerr, err := math2.MatriSubs(out, y_train[ie])
 			if err != nil {
 				fmt.Println(err)
@@ -180,24 +197,26 @@ func (e Model) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr 
 					realerr[y][x] *= 2
 				}
 			}
+			
+			// Backpropagonate the error through the network
 			e.backward(realerr, lr)
 
 			Print(i, epochs, ie + 1, len(x_train), math2.Mean(avg), er)
 		}
 		acc := math2.Mean(avg)
 
-		// Print UI
-		//fmt.Println("Epoch", i, "Error", err/float64(len(x_train)), "Accuracy", acc*100,"%")
+		
 		res.Accuracy = acc
 		res.Error = er
 	}
+	
 	end := time.Since(start)
-
 	res.Duration = end
 
 	return res
 }
 
+// Prints the output
 func Print(epoch int, epochs int, item int, items int, acc float64, er float64)  {
 	prog, err := progress.NewModel(progress.WithDefaultScaledGradient(),progress.WithoutPercentage(),)
 	if err != nil {
