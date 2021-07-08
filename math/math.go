@@ -24,3 +24,4 @@ func Sum(in []float64) float64 {
 	}
 	return sum
 }
+// determines the correct dimensions of the matrix.
