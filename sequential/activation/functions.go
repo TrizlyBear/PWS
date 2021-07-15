@@ -23,9 +23,6 @@ func (e *ReLu) Forward(in [][]float64) [][]float64 {
 func (e *ReLu) Backward(err [][]float64, lr float64) [][]float64 {
 	for y,el := range err {
 		for x,_ := range el {
-			//if (*e).in {
-			//
-			//}
 			err[y][x] = (1 - math.Pow(math.Tanh(err[y][x]),2)) * err[y][x]
 		}
 	}
