@@ -23,8 +23,8 @@ type Model struct {
 
 // Defines a layer with the functions for forward propagation and backward propagation
 type Layer interface {
-	Forward([][]float64) [][]float64
-	Backward([][]float64, float64) [][]float64
+	Forward([][][]float64) [][][]float64
+	Backward([][][]float64, float64) [][][]float64
 }
 
 // Defines a result object to analyze duration, error, acc etc.
@@ -44,7 +44,7 @@ func reverse(s []Layer) []Layer {
 }
 
 // Computes the input into output by forwarding it through all the layers
-func (e Model) forward(in [][]float64) [][]float64 {
+func (e Model) forward(in [][][]float64) [][][]float64 {
 	for _, el := range e.Layers {
 		in = (*(&el)).Forward(in)
 	}
@@ -52,7 +52,7 @@ func (e Model) forward(in [][]float64) [][]float64 {
 }
 
 // Computes new weights for the layers by inputing the error of the output
-func (e Model) backward(err [][]float64, lr float64) [][]float64 {
+func (e Model) backward(err [][][]float64, lr float64) [][][]float64 {
 	reversed := reverse(e.Layers)
 	for _, el := range e.Layers {
 		err = (*(&el)).Backward(err, lr)
@@ -118,7 +118,7 @@ func (e *Model) Save(folder string, file ...string) error {
 }
 
 // Let the model compute an output for the given input
-func (e Model) Predict(in [][]float64) [][]float64 {
+func (e Model) Predict(in [][][]float64) [][][]float64 {
 	return e.forward(in)
 }
 
@@ -156,7 +156,7 @@ func Load(file string) (*Model,error) {
 }
 
 // Trains the network
-func (e Model) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr float64) Result {
+func (e Model) Fit(x_train [][][][]float64, y_train [][][][]float64, epochs int, lr float64) Result {
 	// Times the execution time
 	start := time.Now()
 	res := Result{Epochs: epochs}
@@ -167,38 +167,60 @@ func (e Model) Fit(x_train [][][]float64, y_train [][][]float64, epochs int, lr 
 		// Forward and backward propagate all the objects through the model
 		for ie, x := range x_train {
 			out := e.forward(x)
-			disperr, err := math2.MatriSubs(y_train[ie],out)
-			if err != nil {
-				fmt.Println(err)
-			}
-			// Squares all the values in the outputut error
-			for y,_ := range disperr {
-				for x,_ := range disperr[0] {
-					disperr[y][x] *= disperr[y][x]
+			//fmt.Println("Out",out)
+			disperr := [][][]float64{}
+			for c := 0; c < len(out); c++ {
+				o, err := math2.MatSub(y_train[ie][c],out[c])
+				if err == nil {
+					disperr = append(disperr, o)
+				} else {
+					fmt.Println(err)
 				}
 			}
+
+			// Squares all the values in the outputut error
+			for z,_ := range disperr {
+				for y, _ := range disperr[z] {
+					for x, _ := range disperr[z][y] {
+						disperr[z][y][x] *= disperr[z][y][x]
+					}
+				}
+			}
+
 			// Calculates the mean of the error
 			dispavg := []float64{}
-			for _,row := range disperr {
-				dispavg = append(dispavg, math2.Mean(row))
+
+			for _,dim := range disperr {
+				for _, row := range dim {
+					dispavg = append(dispavg, math2.Mean(row))
+				}
 			}
+
 			er += math2.Mean(dispavg)
 			
 			// Checks if the output is closest to the true value
 			avg = append(avg, math2.Closest(out, y_train, y_train[ie]))
 
 			// Calculates the actual error by substracting the output with the true value
-			realerr, err := math2.MatriSubs(out, y_train[ie])
-			if err != nil {
-				fmt.Println(err)
-			}
-			for y,_ := range realerr {
-				for x,_ := range realerr[0] {
-					realerr[y][x] *= 2
+			realerr := [][][]float64{}
+			for c := 0; c < len(out); c++ {
+				o, err := math2.MatSub(out[c],y_train[ie][c])
+				if err == nil {
+					realerr = append(realerr, o)
+				} else {
+					fmt.Println(err)
 				}
 			}
-			
-			// Backpropagonate the error through the network
+
+			for z,_ := range realerr {
+				for y, _ := range realerr[0] {
+					for x, _ := range realerr[0][0] {
+						realerr[z][y][x] *= 2
+					}
+				}
+			}
+
+			// Backpropagate the error through the network
 			e.backward(realerr, lr)
 
 			Print(i, epochs, ie + 1, len(x_train), math2.Mean(avg), er)

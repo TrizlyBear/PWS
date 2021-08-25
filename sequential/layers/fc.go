@@ -9,58 +9,80 @@ import (
 type FC struct {
 	Out     int
 	weights [][]float64
-	bias    [][]float64
+	bias    []float64
 	init    bool
-	input	[][]float64
+	input	[][][]float64
 }
 
 // FC Forward function
-func (e *FC) Forward(in [][]float64) [][]float64 {
+func (e *FC) Forward(in [][][]float64)  (out [][][]float64) {
+	conv := []float64{}
+
+	for _,x := range in {
+		conv = append(conv, x[0][0])
+	}
+
 	// Initialize weights and biases if there are none
 	if e.init != true {
-		(*e).weights = math.Rand(len(in[0]), e.Out*len(in))
-		(*e).bias = math.Rand(1, e.Out)
+		(*e).weights = math.Rand2D(len(conv), e.Out)
+		(*e).bias = math.Rand2D(1, e.Out)[0]
 		(*e).init = true
 	}
 
 	// Save input for later use
 	(*e).input = in
 
+
+
 	// Multiply the weights and input for output
-	out, er := math.Dot(in, e.weights)
+	nonconvout, er := math.Dot([][]float64{conv}, e.weights)
 	if er != nil {
 		fmt.Println(er)
 	}
 
-	// Apply the baises to the output
-	for y, _ := range out {
-		for x, _ := range out[y] {
-			out[y][x] += (*e).bias[y][0]
-		}
+	for i,_ := range nonconvout {
+		nonconvout[0][i] += (*e).bias[i]
+	}
+
+	for _,e := range nonconvout[0] {
+		out = append(out, [][]float64{{e}})
 	}
 
 	return out
 }
 
-func (e FC) Backward(err [][]float64, lr float64) [][]float64 {
+func (e FC) Backward(err [][][]float64, lr float64) [][][]float64 {
+	//fmt.Println(err)
+	rerr := [][]float64{{}}
+
+	for _,x := range err {
+		rerr[0] = append(rerr[0], x[0][0])
+	}
+
+	rinput := [][]float64{{}}
+
+	for _,x := range e.input {
+		rinput[0] = append(rinput[0], x[0][0])
+	}
 
 	// Calculate the error for the next layer
-	ierr, er := math.Dot(err,math.Transpose(e.weights))
+	rierr, er := math.Dot(rerr,math.Transpose(e.weights))
 
 	if er != nil {
 		fmt.Println(er)
 	}
 
 	// Calculate the error of the weights
-	werr, er := math.Dot(math.Transpose(e.input), err)
+	werr, er := math.Dot(math.Transpose(rinput), rerr)
 
 	if er != nil {
 		fmt.Print(er)
 	}
 
 	// Adjust the bias according to the error
+	//fmt.Println(rerr)
 	for x, _ := range e.bias {
-		e.bias[x][0] -= lr * err[0][x]
+		e.bias[x] -= lr * rerr[0][x]
 	}
 
 	// Adjust the weights by substracting it weight error multiplied by the learning rate
@@ -68,6 +90,12 @@ func (e FC) Backward(err [][]float64, lr float64) [][]float64 {
 		for x, _ := range e.weights[0] {
 			e.weights[y][x] -= lr * werr[y][x]
 		}
+	}
+
+	ierr := [][][]float64{}
+
+	for _,e := range rierr[0] {
+		ierr = append(ierr, [][]float64{{e}})
 	}
 
 	// Return the error for the next layer

@@ -19,8 +19,8 @@ type datasetOption func(*Dataset)
 
 type Dataset struct {
 	Name 	string
-	X 		[][][]float64
-	Y 		[][][]float64
+	X 		[][][][]float64
+	Y 		[][][][]float64
 }
 
 func Max(max int) datasetOption {
@@ -33,7 +33,9 @@ func Max(max int) datasetOption {
 func Resize(x, y int) datasetOption {
 	return func(dataset *Dataset) {
 		for i,X := range dataset.X {
-			dataset.X[i] = utils.Resize(x,y,utils.MatToImg(X))
+			for img,_ := range dataset.X[i] {
+				dataset.X[i][img] = utils.Resize(x,y,utils.MatToImg(X[img]))
+			}
 		}
 	}
 }
@@ -41,11 +43,11 @@ func Resize(x, y int) datasetOption {
 func LabelToIndex(length int) datasetOption {
 	return func(dataset *Dataset) {
 		for i,x := range dataset.Y {
-			yar := [][]float64{{}}
+			yar := [][][]float64{}
 			for o := 0; o < length; o++ {
-				yar[0] = append(yar[0], 0)
+				yar = append(yar, [][]float64{{0}})
 			}
-			yar[0][int(x[0][0])] = float64(1)
+			yar[int(x[0][0][0])][0][0] = float64(1)
 			dataset.Y[i] = yar
 		}
 	}
@@ -64,8 +66,8 @@ func FromCSV(file string, labels []int, options ...datasetOption) (*Dataset, err
 
 	set := &Dataset{}
 
-	X := [][][]float64{}
-	Y := [][][]float64{}
+	X := [][][][]float64{}
+	Y := [][][][]float64{}
 
 	for _,row := range r[1:] {
 		x := [][]float64{{}}
@@ -82,8 +84,8 @@ func FromCSV(file string, labels []int, options ...datasetOption) (*Dataset, err
 				x[0] = append(x[0], val)
 			}
 		}
-		Y = append(Y, y)
-		X = append(X, x)
+		Y = append(Y, [][][]float64{y})
+		X = append(X, [][][]float64{x})
 	}
 
 	set.X = X
@@ -98,11 +100,14 @@ func FromCSV(file string, labels []int, options ...datasetOption) (*Dataset, err
 
 func (ds *Dataset) Reshape(x int,y int)  {
 	for i,X := range ds.X {
-		ds.X[i] = math.Resize(X,y,x)
+		for img,_ := range ds.X[i] {
+			ds.X[i][img] = math.Resize(X[img],y,x)
+		}
+
 	}
 }
 
-func (ds *Dataset) Split(train_size float64) ([][][]float64, [][][]float64, [][][]float64, [][][]float64) {
+func (ds *Dataset) Split(train_size float64) ([][][][]float64, [][][][]float64, [][][][]float64, [][][][]float64) {
 	if train_size < 0 || train_size > 1 {
 		panic(errors.New("Training size must be bigger than 0 or smaller than 1"))
 	}
@@ -136,8 +141,8 @@ func FromFolder(folder string, dec utils.Decoder, x,y int, options ...datasetOpt
 							x[y][X] = 1 - x[y][X]
 						}
 					}
-					set.X = append(set.X, x)
-					set.Y = append(set.Y, [][]float64{{float64(i)}})
+					set.X = append(set.X, [][][]float64{x})
+					set.Y = append(set.Y, [][][]float64{{{float64(i)}}})
 				}
 			}
 		}	
@@ -194,5 +199,4 @@ func (ds *Dataset) Shuffle() {
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(ds.X), func(i, j int) { ds.X[i], ds.X[j] = ds.X[j], ds.X[i] })
 	rand.Shuffle(len(ds.Y), func(i, j int) { ds.Y[i], ds.Y[j] = ds.Y[j], ds.Y[i] })
-
 }

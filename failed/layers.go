@@ -33,11 +33,11 @@ func (e ReLu) Forward(in [][]float64) ([][]float64, error) {
 func (e *FC) Forward(in [][]float64, out int, insize int) ([][]float64, error) {
 	//fmt.Println("Forward")
 	//if len(e.Biases) == 0 {
-	//	(*e).Biases = math2.Rand(1, 1)
+	//	(*e).Biases = math2.Rand2D(1, 1)
 	//	if (*e).Out == 1 {
-	//		(*e).Weights = math2.Rand((*e).Out, (*e).In*(*e).In)
+	//		(*e).Weights = math2.Rand2D((*e).Out, (*e).In*(*e).In)
 	//	} else {
-	//		(*e).Weights = math2.Rand((*e).Out, (*e).In)
+	//		(*e).Weights = math2.Rand2D((*e).Out, (*e).In)
 	//	}
 	//
 	//	if (*e).Out == 1 {

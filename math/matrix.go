@@ -2,13 +2,13 @@ package math
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"math/rand"
+	"reflect"
 )
 
 // Creates a matrix with random values
-func Rand(y int, x int) [][]float64 {
+func Rand2D(y int, x int) [][]float64 {
 	out := make([][]float64, int(y))
 	for i := 0; i < x; i++ {
 		for m := 0; m < y; m++ {
@@ -18,7 +18,7 @@ func Rand(y int, x int) [][]float64 {
 	return out
 }
 
-// Multiplies two matrices
+// Multiplies two 2-dimensional matrices
 func Dot(x [][]float64, y [][]float64) (r [][]float64, err error) {
 	if len(x[0]) != len(y) {
 		//fmt.Println(x,y)
@@ -79,22 +79,26 @@ func Resize(matrix [][]float64, y int, x int) [][]float64 {
 }
 
 // Normalizes the values between <0,1>
-func Normalize(in [][][]float64) [][][]float64 {
+func Normalize(in [][][][]float64) [][][][]float64 {
 	smallest := math.Inf(1)
 	biggest := math.Inf(-1)
 	for _, a := range in {
 		for _, b := range a {
 			for _, c := range b {
-				if c < smallest {
-					smallest = c
+				for _,d := range c {
+					if d < smallest {
+						smallest = d
+					}
 				}
 			}
 		}
 	}
 	for x, a := range in {
 		for y, b := range a {
-			for z, _ := range b {
-				in[x][y][z] -= smallest
+			for z, c := range b {
+				for omega,_ := range c {
+					in[x][y][z][omega] -= smallest
+				}
 			}
 		}
 	}
@@ -102,16 +106,20 @@ func Normalize(in [][][]float64) [][][]float64 {
 	for _, a := range in {
 		for _, b := range a {
 			for _, c := range b {
-				if c > biggest {
-					biggest = c
+				for _,d := range c {
+					if d > biggest {
+						biggest = d
+					}
 				}
 			}
 		}
 	}
 	for x, a := range in {
 		for y, b := range a {
-			for z, _ := range b {
-				in[x][y][z] *= 1 / biggest
+			for z, c := range b {
+				for omega,_ := range c {
+					in[x][y][z][omega] *= 1 / biggest
+				}
 			}
 		}
 	}
@@ -119,8 +127,8 @@ func Normalize(in [][][]float64) [][][]float64 {
 }
 
 // Checks if the predicted value is the closest to the true value, returns 1 if true, 0 if false
-func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64 {
-	in := false
+func Closest(pred [][][]float64, all [][][][]float64, truevalue [][][]float64) float64 {
+	/*in := false
 	for _, x := range all {
 		checkcurrent := true
 		for y, a := range x {
@@ -139,15 +147,18 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 		fmt.Printf("True value not in all values #{lol}")
 		return 0
 	}
+	*/
 	
 	smallest := float64(math.Inf(1))
 	smallesti := -1
 
-	for i, z := range all {
+	for i, el := range all {
 		total := 0.0
-		for y, a := range z {
-			for x, _ := range a {
-				total += math.Abs(z[y][x] - pred[y][x])
+		for z,dim := range el {
+			for y, a := range dim {
+				for x, _ := range a {
+					total += math.Abs(el[z][y][x] - pred[z][y][x])
+				}
 			}
 		}
 
@@ -157,11 +168,13 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 		}
 	}
 	isTrue := true
-	for y, z := range all[smallesti] {
+	for y, dim := range all[smallesti] {
 
-		for x, _ := range z {
-			if all[smallesti][y][x] != truevalue[y][x] {
-				isTrue = false
+		for x, row := range dim {
+			for z,_ := range row {
+				if all[smallesti][y][x][z] != truevalue[y][x][z] {
+					isTrue = false
+				}
 			}
 		}
 	}
@@ -174,7 +187,25 @@ func Closest(pred [][]float64, all [][][]float64, truevalue [][]float64) float64
 }
 
 // Substracts two matrices
-func MatriSubs(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
+func MatSub(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
+	if len(m1) != len(m2) || len(m1[0]) != len(m2[0]) {
+		// Returns error if dimensions do not match
+		return nil, errors.New("Dimensions do not match. "+string(len(m1))+" is not "+string(len(m2))+" or "+string(len(m1[0]))+" is not "+string(len(m2[0])))
+	}
+	out := [][]float64{}
+	for y,ely := range m1 {
+		row := []float64{}
+		for x,_ := range ely {
+			row = append(row, m1[y][x] - m2[y][x])
+		}
+		out = append(out, row)
+	}
+
+	return out, nil
+}
+
+// Adds two matrices
+func MatAdd(m1 [][]float64, m2 [][]float64) ([][]float64, error) {
 	if len(m1) != len(m2) || len(m1[0]) != len(m2[0]) {
 		// Returns error if dimensions do not match
 		return nil, errors.New("Dimensions do not match. "+string(len(m1))+" is not "+string(len(m2))+" or "+string(len(m1[0]))+" is not "+string(len(m2[0])))
@@ -201,15 +232,19 @@ func VertStack(x [][]float64, y [][]float64) [][]float64 {
 
 // Stacks two matrices horizontally
 func HorzStack(x [][]float64, y [][]float64) [][]float64 {
+	out := [][]float64{}
+	for _,row := range x {
+		out = append(out, row)
+	}
 	for i,_ := range y {
 		for ix,_ := range y[i] {
-			x[i] = append(x[i], y[i][ix])
+			out[i] = append(out[i], y[i][ix])
 		}
 	}
-	return x
+	return out
 }
 // Creates a matrix of zeros with dimentions x and y
-func Zeros(x int, y int) (out [][]float64) {
+func Zeros2D(x int, y int) (out [][]float64) {
 	for i := 0; i < y; i++ {
 		row := []float64{}
 		for o := 0; o < x; o++ {
@@ -218,4 +253,128 @@ func Zeros(x int, y int) (out [][]float64) {
 		out = append(out, row)
 	}
 	return out
+}
+
+// Returns the average value of a matrix
+func MatMean(m [][]float64) float64 {
+	vals := []float64{}
+	for _,r := range m {
+		vals = append(vals, Mean(r))
+	}
+	return Mean(vals)
+}
+
+// Defines MatOp function
+type MatOpF func(val float64, x int, y int) float64
+
+// Applies a given function on a matrix
+func MatOp(m [][]float64, f MatOpF) [][]float64 {
+	for y,_ := range m {
+		for x,_ := range m[y] {
+			m[y][x] = f(m[y][x], x, y)
+		}
+	}
+	return m
+}
+
+// Calculates the sum of a matrix
+func MatSum(m [][]float64) (out float64) {
+	for y,_ := range m {
+		for x,_ := range m[y] {
+			out += m[y][x]
+		}
+	}
+	return out
+}
+
+// Generate a multidimensional matrix with random numbers
+func Rand(seq ...int) interface{} {
+	// Declare numbers to fill
+	nums := seq[0]
+	for _,el := range seq[1:] {
+		nums *= el
+	}
+
+	// Generate the sequence of numbers
+	left := []reflect.Value{}
+	for i := 0; i < nums; i++ {
+		left = append(left, reflect.ValueOf(rand.Float64()))
+	}
+
+	// Declare the type template
+	t := reflect.TypeOf([]float64{})
+
+	// Reverse the sequence
+	for i, j := 0, len(seq)-1; i < j; i, j = i+1, j-1 {
+		seq[i], seq[j] = seq[j], seq[i]
+	}
+
+	// Loop over the sequence
+	for _,a := range seq {
+		n := []reflect.Value{}
+		for y := 0; y < nums / a; y++ {
+			holder := reflect.Zero(t)
+			for i := 0; i < a; i++ {
+				holder = reflect.Append(holder, left[0])
+				left = left[1:]
+			}
+			n = append(n, holder)
+		}
+		nums /= a
+		left = n
+		t = reflect.SliceOf(t)
+	}
+	return left[0].Interface()
+}
+
+// Generate a multidimensional matrix with zeros
+func Zeros(seq ...int) interface{} {
+	// Declare numbers to fill
+	nums := seq[0]
+	for _,el := range seq[1:] {
+		nums *= el
+	}
+
+	// Generate the sequence of numbers
+	left := []reflect.Value{}
+	for i := 0; i < nums; i++ {
+		left = append(left, reflect.ValueOf(float64(0)))
+	}
+
+	// Declare the type template
+	t := reflect.TypeOf([]float64{})
+
+	// Reverse the sequence
+	for i, j := 0, len(seq)-1; i < j; i, j = i+1, j-1 {
+		seq[i], seq[j] = seq[j], seq[i]
+	}
+
+	// Loop over the sequence
+	for _,a := range seq {
+		n := []reflect.Value{}
+		for y := 0; y < nums / a; y++ {
+			holder := reflect.Zero(t)
+			for i := 0; i < a; i++ {
+				holder = reflect.Append(holder, left[0])
+				left = left[1:]
+			}
+			n = append(n, holder)
+		}
+		nums /= a
+		left = n
+		t = reflect.SliceOf(t)
+	}
+	return left[0].Interface()
+}
+
+// Adds padding to a matrix
+func Padding(in [][]float64, s int) [][]float64 {
+	if s == 0 {
+		return in
+	}
+	dimX := len(in[0])
+	dimY := len(in)
+	sidefill := Zeros(dimY,s).([][]float64)
+	topfill := Zeros(s,dimX + (2 * s)).([][]float64)
+	return VertStack(VertStack(topfill,HorzStack(sidefill,HorzStack(in,sidefill))),topfill)
 }

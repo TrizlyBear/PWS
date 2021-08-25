@@ -75,11 +75,11 @@ func Resize(x, y int,  img image.Image)  [][]float64 {
 	resized := resize.Thumbnail(uint(x),uint(y),img,resize.Lanczos3)
 	out := ImgToMat(resized)
 	if y > resized.Bounds().Dy() {
-		add := math.Zeros(len(out[0]), y-len(out))
+		add := math.Zeros2D(len(out[0]), y-len(out))
 		out = math.VertStack(out, add)
 	}
 	if x > resized.Bounds().Dx() {
-		add := math.Zeros(x-len(out[0]), len(out))
+		add := math.Zeros2D(x-len(out[0]), len(out))
 		out = math.HorzStack(out, add)
 	}
 	return out

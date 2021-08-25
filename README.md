@@ -34,8 +34,8 @@ import (
 
 func main() {
 	// Create a training set consisting of training values and labels
-	x_train := [][][]float64{...}
-	y_train := [][][]float64{...}
+	x_train := [][][][]float64{...}
+	y_train := [][][][]float64{...}
 	
 	// Initialize a model consisting of 2 fully connected layers and 2 activation layers
 	model := &sequential.Model{Layers: []sequential.Layer{&layers.FC{Out: 10}, &activation.Tanh{}, &layers.FC{Out: 1}, &activation.Tanh{}}}
