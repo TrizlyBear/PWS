@@ -1,4 +1,4 @@
-# PWS [![Godoc](https://godoc.org/github.com/TrizlyBear/PWS?status.svg)](https://godoc.org/github.com/TrizlyBear/PWS) [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
+# PWS [![Godoc](https://godoc.org/github.com/TrizlyBear/PWS?status.svg)](https://godoc.org/github.com/TrizlyBear/PWS) [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs) [![Testing](https://github.com/TrizlyBear/PWS/actions/workflows/testing.yml/badge.svg)](https://github.com/TrizlyBear/PWS/actions/workflows/testing.yml)
 Simple layered neural network library made in Go.
 
 ## Goals
