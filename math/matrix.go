@@ -298,7 +298,7 @@ func Rand(seq ...int) interface{} {
 	// Generate the sequence of numbers
 	left := []reflect.Value{}
 	for i := 0; i < nums; i++ {
-		left = append(left, reflect.ValueOf(rand.Float64()))
+		left = append(left, reflect.ValueOf(rand.Float64() - .5))
 	}
 
 	// Declare the type template

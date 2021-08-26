@@ -1,6 +1,7 @@
 package math
 
 import (
+	"math"
 	"sort"
 )
 
@@ -17,6 +18,23 @@ func Mean(in []float64) float64 {
 func Max(in []float64) float64 {
 	sort.Float64s(in)
 	return in[len(in)-1]
+}
+
+func MaxIndex(in [][]float64) (float64, int, int) {
+	biggest := math.Inf(-1)
+	bY := -1
+	bX := -1
+	for y,_ := range in {
+		for x,_ := range in[y] {
+			if in[y][x] > biggest {
+				biggest = in[y][x]
+				bY = y
+				bX = x
+			}
+		}
+	}
+
+	return biggest, bX, bY
 }
 
 // Calculates the sum of the input array

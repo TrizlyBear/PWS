@@ -2,15 +2,21 @@ package testing
 
 import (
 	"fmt"
-	"github.com/TrizlyBear/PWS/math"
-	"github.com/TrizlyBear/PWS/sequential"
 	"github.com/TrizlyBear/PWS/sequential/activation"
-	"github.com/TrizlyBear/PWS/sequential/layers"
-	dataset2 "github.com/TrizlyBear/PWS/utils/dataset"
 	"testing"
 )
 
 func TestConv(t *testing.T) {
+	l := &activation.MaxPooling{}
+	fmt.Println(l.Forward([][][]float64{
+		{{1,10},{3,4}},
+	}))
+
+	fmt.Println(l.Backward([][][]float64{
+		{{9}},
+	}, .1))
+
+	/*
 	ds, err := dataset2.FromCSV("../datasets/mnist_train.csv",[]int{0}, dataset2.Max(10000), dataset2.LabelToIndex(10))
 	if err != nil {
 		panic(err)
@@ -41,4 +47,5 @@ func TestConv(t *testing.T) {
 		avg = append(avg,math.Closest(n.Predict(el),Y_v,Y_v[i]))
 	}
 	fmt.Println("Accuracy:",math.Mean(avg)*100,"%")
+	 */
 }

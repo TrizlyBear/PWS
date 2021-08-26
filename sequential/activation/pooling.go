@@ -7,11 +7,60 @@ import (
 
 // Maximum pooling layer
 type MaxPooling struct {
-	Ksize  int
-	Stride int
+	max [][][]struct{
+		y int
+		x int
+	}
+}
+
+func (e *MaxPooling) Forward(in [][][]float64) [][][]float64{
+	(*e).max = [][][]struct{
+		y int
+		x int
+	}{}
+
+	out := [][][]float64{}
+	for l,_ := range in {
+		lout := make([][]float64, len(in[l]) / 2)
+		iout := make([][]struct{
+			y int
+			x int
+		}, len(in[l]) / 2)
+		for y := 0; y < len(in[l]) - 1; y += 2 {
+			for x := 0; x < len(in[l][y]) - 1; x += 2 {
+				o, ox, oy := math.MaxIndex([][]float64{in[l][y][x:x+2], in[l][y+1][x:x+2]})
+				lout[y / 2] = append(lout[y / 2], o)
+				iout[y / 2] = append(iout[y / 2], struct {
+					y int
+					x int
+				}{oy + y, ox + x})
+
+			}
+		}
+		(*e).max = append((*e).max, iout)
+		out = append(out, lout)
+	}
+	return out
+}
+
+func (e *MaxPooling) Backward(error [][][]float64, lr float64) [][][]float64 {
+	out := [][][]float64{}
+	for l,_ := range error {
+		lout := math.Zeros(len(error[l])*2,len(error[l][0])*2).([][]float64)
+		for y,_ := range error[l] {
+			for x,_ := range error[l][y] {
+				lout[e.max[l][y][x].y][e.max[l][y][x].x]  += error[l][y][x]
+			}
+		}
+
+		out = append(out, lout)
+	}
+
+	return out
 }
 
 // Maximum pooling forward function
+/*
 func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 	if len(in[0]) != len(in) {
 		return [][]float64{{-1}}, errors.New("Input is not a square")
@@ -36,6 +85,7 @@ func (e MaxPooling) Forward(in [][]float64) ([][]float64, error) {
 	}
 	return out, nil
 }
+ */
 
 // Average pooling layer
 type AvgPooling struct {
