@@ -1,33 +1,45 @@
 package activation
 
 import (
+	math2 "github.com/TrizlyBear/PWS/math"
 	"math"
 )
 
 // Rectifier linear unit layer
 type ReLu struct {
-	input [][]float64
+	input [][][]float64
 }
 
 // ReLu forward
-func (e *ReLu) Forward(in [][]float64) [][]float64 {
-	(*e).input = in
-	for y,el := range in {
-		for x,_ := range el {
-			
-			in[y][x] = math.Max(0, in[y][x])
+func (e *ReLu) Forward(in [][][]float64) [][][]float64 {
+	(*e).input = math2.Zeros(len(in),len(in[0]),len(in[0][0])).([][][]float64)
+
+	for z,_ := range in {
+		for y,_ := range in[z] {
+			for x,_ := range in[z][y] {
+				if in[z][y][x] >= 0 {
+					(*e).input[z][y][x] = 1
+				} else {
+					in[z][y][x] = 0
+				}
+			}
 		}
 	}
 	return in
 }
 
 // ReLu backward function
-func (e *ReLu) Backward(err [][]float64, lr float64) [][]float64 {
-	for y,el := range err {
-		for x,_ := range el {
-			err[y][x] = (1 - math.Pow(math.Tanh(err[y][x]),2)) * err[y][x]
+func (e *ReLu) Backward(err [][][]float64, lr float64) [][][]float64 {
+	for z,_ := range err {
+		for y,_ := range err[z] {
+			for x,_ := range err[z][y] {
+				if e.input[z][y][x] < 0 {
+					err[z][y][x] = 0
+				}
+			}
 		}
 	}
+
 	return err
 }
 
@@ -64,4 +76,8 @@ func (e Tanh) Backward(err [][][]float64, lr float64) [][][]float64 {
 	}
 
 	return err
+}
+
+type Sigmoid struct {
+	Input [][][]float64
 }

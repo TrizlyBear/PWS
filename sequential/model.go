@@ -47,6 +47,15 @@ func reverse(s []Layer) []Layer {
 func (e Model) forward(in [][][]float64) [][][]float64 {
 	for _, el := range e.Layers {
 		in = (*(&el)).Forward(in)
+
+		avg := []float64{}
+		for x,_ := range in {
+			for y,_ := range in[x] {
+				avg = append(avg, math2.Mean(in[x][y]))
+			}
+		}
+
+		//fmt.Printf("fw %e after %T\n", math2.Mean(avg), el)
 	}
 	return in
 }
@@ -56,6 +65,14 @@ func (e Model) backward(err [][][]float64, lr float64) [][][]float64 {
 	reversed := reverse(e.Layers)
 	for _, el := range e.Layers {
 		err = (*(&el)).Backward(err, lr)
+		avg := []float64{}
+		for x,_ := range err {
+			for y,_ := range err[x] {
+				avg = append(avg, math2.Mean(err[x][y]))
+			}
+		}
+		//fmt.Printf("bw %e after %T\n", math2.Mean(avg), el)
+
 	}
 	reversed = reverse(reversed)
 	return err
@@ -223,7 +240,7 @@ func (e Model) Fit(x_train [][][][]float64, y_train [][][][]float64, epochs int,
 			// Backpropagate the error through the network
 			e.backward(realerr, lr)
 
-			Print(i, epochs, ie + 1, len(x_train), math2.Mean(avg), er)
+			e.Print(i, epochs, ie + 1, len(x_train), math2.Mean(avg), er, out, y_train[ie])
 		}
 		acc := math2.Mean(avg)
 
@@ -239,16 +256,17 @@ func (e Model) Fit(x_train [][][][]float64, y_train [][][][]float64, epochs int,
 }
 
 // Prints the output
-func Print(epoch int, epochs int, item int, items int, acc float64, er float64)  {
+func (net *Model)Print(epoch int, epochs int, item int, items int, acc float64, er float64, pred [][][]float64, real [][][]float64)  {
 	prog, err := progress.NewModel(progress.WithDefaultScaledGradient(),progress.WithoutPercentage(),)
 	if err != nil {
 		panic(err)
 	}
 
 	if epoch != 1 || item != 1 {
-		termenv.ClearLines(6)
+		termenv.ClearLines(7)
 	}
 	fmt.Println("")
+	fmt.Println("Pred:",pred,"Real:",real)
 	fmt.Println("Error:\t\t", er/float64(items))
 	fmt.Println("Accuracy:\t",(acc*100),"%")
 	fmt.Print("Items	")

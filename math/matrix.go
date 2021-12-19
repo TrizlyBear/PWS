@@ -378,3 +378,27 @@ func Padding(in [][]float64, s int) [][]float64 {
 	topfill := Zeros(s,dimX + (2 * s)).([][]float64)
 	return VertStack(VertStack(topfill,HorzStack(sidefill,HorzStack(in,sidefill))),topfill)
 }
+
+func OutIndex(in [][][]float64) int {
+	for i,_ := range in {
+		if in[i][0][0] == 1 {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func Rotate180(in [][]float64) [][]float64{
+	out := in
+
+	for y,_ := range out {
+		for x,_ := range out[y][:len(out[y])/2] {
+			out[y][x],out[y][len(out[y])-x-1]=out[y][len(out[y])-x-1],out[y][x]
+		}
+	}
+	for y,_ := range out[:len(out)/2] {
+		out[y],out[len(out)-y-1] = out[len(out)-y-1],out[y]
+	}
+	return out
+}

@@ -1,30 +1,24 @@
-package math
+package testing
 
 import (
-	"reflect"
+	"fmt"
+	"github.com/TrizlyBear/PWS/sequential/layers"
 	"testing"
 )
 
 func TestRotate180(t *testing.T) {
-	type args struct {
-		in [][]float64
+	in := [][]float64{
+		{1,2},
+		{3,4},
 	}
-	tests := []struct {
-		name string
-		args args
-		want [][]float64
-	}{
-		{
-			name: "Test1",
-			args:args{in: [][]float64{{1,2},{3,4}}},
-			want: [][]float64{{4,3},{2,1}},
-		},
+
+	l := layers.TestConv{
+		KernelSize: struct {
+			X int
+			Y int
+		}{2,2},
+		Depth:  2,
+		Stride: 1,
 	}
-		for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Rotate180(tt.args.in); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Rotate180() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	fmt.Println(l.Forward([][][]float64{in}))
 }
